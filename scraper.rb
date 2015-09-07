@@ -19,6 +19,9 @@ detail_page_urls.each do |url|
   puts "Fetching #{url}"
   detail_page = agent.get(url)
 
+  party_dt = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }
+  party = party_dt.next.inner_text if party_dt
+
   record = {
     ## Required fields
     id: url[/\d+/],
@@ -54,7 +57,7 @@ detail_page_urls.each do |url|
     # wikipedia
     # website
     ## Added fields
-    party: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }.next.inner_text
+    party: party
   }
 
   p record

@@ -61,7 +61,8 @@ detail_page_urls.each do |url|
     # website
     ## Added fields
     party: party,
-    faction: faction
+    faction: faction,
+    source_url: url
   }
 
   puts "Saving record: #{record.inspect}"

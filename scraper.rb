@@ -3,12 +3,17 @@ require 'mechanize'
 
 agent = Mechanize.new
 
-# The full list of deputies is available at a link on this page:
-# http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list
-# ...that page fires JavaScript that loads the following URL
-index_page = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
+# To test just scraping one detail page run the script with the page ID as an argument
+if ARGV[0]
+  detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + ARGV[0]]
+else
+  # The full list of deputies is available at a link on this page:
+  # http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list
+  # ...that page fires JavaScript that loads the following URL
+  index_page = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
 
-detail_page_urls = index_page.search(".title").map { |e| e.at(:a).attr(:href) }
+  detail_page_urls = index_page.search(".title").map { |e| e.at(:a).attr(:href) }
+end
 
 detail_page_urls.each do |url|
   puts "Fetching #{url}"

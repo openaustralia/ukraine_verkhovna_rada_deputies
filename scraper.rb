@@ -49,7 +49,7 @@ detail_page_urls.each do |url|
     # gender
     # birth_date
     # death_date
-    # image
+    image: detail_page.at(".simple_info").at(:img).attr(:src),
     # summary
     # national_identity
     # twitter

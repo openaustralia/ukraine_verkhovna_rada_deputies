@@ -99,6 +99,6 @@ detail_page_urls.each do |url|
     source_url: url
   }
 
-  puts "Saving record: #{record.inspect}"
+  puts "Saving record: #{record[:name]}"
   ScraperWiki::save_sqlite([:id], record)
 end

@@ -4,8 +4,8 @@ require 'mechanize'
 agent = Mechanize.new
 
 # To test just scraping one detail page run the script with the page ID as an argument
-if ARGV[0]
-  detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + ARGV[0]]
+if ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"]
+  detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + (ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"])]
 else
   # The full list of deputies is available at a link on this page:
   # http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list

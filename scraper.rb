@@ -10,45 +10,47 @@ index_page = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
 
 detail_page_urls = index_page.search(".title").map { |e| e.at(:a).attr(:href) }
 
-url = detail_page_urls.first
-detail_page = agent.get(url)
+detail_page_urls.each do |url|
+  puts "Fetching #{url}"
+  detail_page = agent.get(url)
 
-record = {
-  ## Required fields
-  id: url[/\d+/],
-  name: detail_page.at(:h2).inner_text,
-  area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" }.next.inner_text,
-  # group:
-  term: 8,
-  # TODO: parse to a date
-  start_date: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата набуття депутатських повноважень:" }.next.next.inner_text,
-  # end_date:
-  ## Optional fields
-  # given_name
-  # family_name
-  # honorific_prefix
-  # honorific_suffix
-  # patronymic_name
-  # sort_name
-  # email
-  # phone
-  # fax
-  # cell
-  # gender
-  # birth_date
-  # death_date
-  # image
-  # summary
-  # national_identity
-  # twitter
-  # facebook
-  # blog
-  # flickr
-  # instagram
-  # wikipedia
-  # website
-  ## Added fields
-  party: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }.next.inner_text
-}
+  record = {
+    ## Required fields
+    id: url[/\d+/],
+    name: detail_page.at(:h2).inner_text,
+    area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" }.next.inner_text,
+    # group:
+    term: 8,
+    # TODO: parse to a date
+    start_date: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата набуття депутатських повноважень:" }.next.next.inner_text,
+    # end_date:
+    ## Optional fields
+    # given_name
+    # family_name
+    # honorific_prefix
+    # honorific_suffix
+    # patronymic_name
+    # sort_name
+    # email
+    # phone
+    # fax
+    # cell
+    # gender
+    # birth_date
+    # death_date
+    # image
+    # summary
+    # national_identity
+    # twitter
+    # facebook
+    # blog
+    # flickr
+    # instagram
+    # wikipedia
+    # website
+    ## Added fields
+    party: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }.next.inner_text
+  }
 
-p record
+  p record
+end

@@ -15,6 +15,37 @@ else
   detail_page_urls = index_page.search(".title").map { |e| e.at(:a).attr(:href) }
 end
 
+def ukrainian_month_to_i(string)
+  case string
+  when "січня"
+    1
+  when "лютого"
+    2
+  when "березня"
+    3
+  when "квітня"
+    4
+  when "травня"
+    5
+  when "червня"
+    6
+  when "липня"
+    7
+  when "серпня"
+    8
+  when "вересня"
+    9
+  when "жовтня"
+    10
+  when "листопада"
+    11
+  when "грудня"
+    12
+  else
+    raise "Unknown month #{string}"
+  end
+end
+
 detail_page_urls.each do |url|
   puts "Fetching #{url}"
   detail_page = agent.get(url)
@@ -25,6 +56,9 @@ detail_page_urls.each do |url|
   faction_dt = detail_page.at(".simple_info").at(:br)
   faction = faction_dt.next.inner_text.strip if faction_dt
 
+  start_date_parts = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата набуття депутатських повноважень:" }.next.next.inner_text.split
+  start_date = Date.new(start_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(start_date_parts[1]), start_date_parts[0].to_i)
+
   record = {
     ## Required fields
     id: url[/\d+/],
@@ -33,8 +67,7 @@ detail_page_urls.each do |url|
     # TODO: Just set this to party?
     # group:
     term: 8,
-    # TODO: parse to a date
-    start_date: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата набуття депутатських повноважень:" }.next.next.inner_text,
+    start_date: start_date,
     # end_date:
     ## Optional fields
     # given_name

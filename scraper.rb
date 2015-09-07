@@ -22,7 +22,8 @@ detail_page_urls.each do |url|
   party_dt = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }
   party = party_dt.next.inner_text if party_dt
 
-  faction = detail_page.at(".simple_info").at(:br).next.inner_text.strip
+  faction_dt = detail_page.at(".simple_info").at(:br)
+  faction = faction_dt.next.inner_text.strip if faction_dt
 
   record = {
     ## Required fields

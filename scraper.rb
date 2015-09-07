@@ -18,7 +18,7 @@ detail_page_urls.each do |url|
     ## Required fields
     id: url[/\d+/],
     name: detail_page.at(:h2).inner_text,
-    area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" }.next.inner_text,
+    area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" || d.inner_text.strip == "Обрана по:" }.next.inner_text,
     # group:
     term: 8,
     # TODO: parse to a date

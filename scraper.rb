@@ -10,9 +10,14 @@ else
   # The full list of deputies is available at a link on this page:
   # http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list
   # ...that page fires JavaScript that loads the following URL
-  current_deputies = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
+  current_deputies_url = "http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9"
+  puts "Fetching current deputies from: #{current_deputies_url}"
+  current_deputies = agent.get(current_deputies_url)
+
   # Deputies that are no longer in the Rada
-  left_deputies = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9&pid_id=-3")
+  left_deputies_url = "http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9&pid_id=-3"
+  puts "Fetching left deputies from: #{left_deputies_url}"
+  left_deputies = agent.get(left_deputies_url)
 
   detail_page_urls = current_deputies.search(".title").map { |e| e.at(:a).attr(:href) } +
                      left_deputies.search(".title").map { |e| e.at(:a).attr(:href) }

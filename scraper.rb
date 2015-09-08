@@ -1,6 +1,8 @@
 require 'scraperwiki'
 require 'mechanize'
 
+@agent = Mechanize.new
+
 def ukrainian_month_to_i(string)
   case string
   when "січня"
@@ -32,7 +34,11 @@ def ukrainian_month_to_i(string)
   end
 end
 
-agent = Mechanize.new
+def extract_urls_from_index(url)
+  puts "Fetching detail page urls from: #{url}"
+  page = @agent.get(url)
+  page.search(".title").map { |e| e.at(:a).attr(:href) }
+end
 
 # To test just scraping one detail page run the script with the page ID as an argument
 if ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"]
@@ -42,21 +48,15 @@ else
   # http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list
   # ...that page fires JavaScript that loads the following URL
   current_deputies_url = "http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9"
-  puts "Fetching current deputies from: #{current_deputies_url}"
-  current_deputies = agent.get(current_deputies_url)
-
   # Deputies that are no longer in the Rada
   left_deputies_url = "http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9&pid_id=-3"
-  puts "Fetching left deputies from: #{left_deputies_url}"
-  left_deputies = agent.get(left_deputies_url)
 
-  detail_page_urls = current_deputies.search(".title").map { |e| e.at(:a).attr(:href) } +
-                     left_deputies.search(".title").map { |e| e.at(:a).attr(:href) }
+  detail_page_urls = extract_urls_from_index(current_deputies_url) + extract_urls_from_index(left_deputies_url)
 end
 
 detail_page_urls.each do |url|
   puts "Fetching #{url}"
-  detail_page = agent.get(url)
+  detail_page = @agent.get(url)
 
   party_dt = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Партія:" }
   party = party_dt.next.inner_text if party_dt

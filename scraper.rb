@@ -40,6 +40,19 @@ def extract_urls_from_index(url)
   page.search(".title").map { |e| e.at(:a).attr(:href) }
 end
 
+def split_name(name)
+  parts = name.split
+  if parts.count == 3
+    # "First names always goes second" and, "Last name is always first".
+    parts.reverse
+  elsif parts.count == 2
+    # Add a blank middle name if there's none
+    parts.reverse.insert(1, nil)
+  else
+    raise "Unexpected number of names: #{name}"
+  end
+end
+
 # To test just scraping one detail page run the script with the page ID as an argument
 if ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"]
   detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + (ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"])]
@@ -73,9 +86,15 @@ detail_page_urls.each do |url|
     Date.new(end_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(end_date_parts[1]), end_date_parts[0].to_i)
   end
 
+  name = detail_page.at(:h2).inner_text
+  name_parts = split_name(name)
+
   record = {
     id: url[/\d+/],
-    name: detail_page.at(:h2).inner_text,
+    name: name,
+    given_name: name_parts[0],
+    middle_name: name_parts[1],
+    family_name: name_parts[2],
     area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" || d.inner_text.strip == "Обрана по:" }.next.inner_text,
     term: 8,
     start_date: start_date,

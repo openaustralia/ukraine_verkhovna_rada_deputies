@@ -10,9 +10,12 @@ else
   # The full list of deputies is available at a link on this page:
   # http://w1.c1.rada.gov.ua/pls/site2/p_deputat_list
   # ...that page fires JavaScript that loads the following URL
-  index_page = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
+  current_deputies = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9")
+  # Deputies that are no longer in the Rada
+  left_deputies = agent.get("http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9&pid_id=-3")
 
-  detail_page_urls = index_page.search(".title").map { |e| e.at(:a).attr(:href) }
+  detail_page_urls = current_deputies.search(".title").map { |e| e.at(:a).attr(:href) } +
+                     left_deputies.search(".title").map { |e| e.at(:a).attr(:href) }
 end
 
 def ukrainian_month_to_i(string)

@@ -59,6 +59,12 @@ detail_page_urls.each do |url|
   start_date_parts = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата набуття депутатських повноважень:" }.next.next.inner_text.split
   start_date = Date.new(start_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(start_date_parts[1]), start_date_parts[0].to_i)
 
+  end_date_dt = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата припинення депутатських повноважень:" }
+  end_date = if end_date_dt
+    end_date_parts = end_date_dt.next.next.inner_text.split
+    Date.new(end_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(end_date_parts[1]), end_date_parts[0].to_i)
+  end
+
   record = {
     ## Required fields
     id: url[/\d+/],
@@ -66,7 +72,7 @@ detail_page_urls.each do |url|
     area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" || d.inner_text.strip == "Обрана по:" }.next.inner_text,
     term: 8,
     start_date: start_date,
-    # end_date:
+    end_date: end_date,
     ## Optional fields
     # given_name
     # family_name

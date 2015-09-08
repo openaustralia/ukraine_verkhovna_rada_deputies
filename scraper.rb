@@ -74,38 +74,13 @@ detail_page_urls.each do |url|
   end
 
   record = {
-    ## Required fields
     id: url[/\d+/],
     name: detail_page.at(:h2).inner_text,
     area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" || d.inner_text.strip == "Обрана по:" }.next.inner_text,
     term: 8,
     start_date: start_date,
     end_date: end_date,
-    ## Optional fields
-    # given_name
-    # family_name
-    # honorific_prefix
-    # honorific_suffix
-    # patronymic_name
-    # sort_name
-    # email
-    # phone
-    # fax
-    # cell
-    # gender
-    # birth_date
-    # death_date
     image: detail_page.at(".simple_info").at(:img).attr(:src),
-    # summary
-    # national_identity
-    # twitter
-    # facebook
-    # blog
-    # flickr
-    # instagram
-    # wikipedia
-    # website
-    ## Added fields
     party: party,
     faction: faction,
     source_url: url

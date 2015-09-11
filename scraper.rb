@@ -67,15 +67,13 @@ else
   detail_page_urls = extract_urls_from_index(current_deputies_url) + extract_urls_from_index(left_deputies_url)
 end
 
+puts "Fetching deputies' details..."
 detail_page_urls.each do |url|
   puts "Fetching #{url}"
   detail_page = @agent.get(url)
 
   party_element = detail_page.at(".mp-general-info dt:contains('Партія:') + dd")
   party = party_element.text if party_element
-
-  faction_br = detail_page.at(".simple_info").at(:br)
-  faction = faction_br.next.inner_text.strip if faction_br
 
   start_date_parts = detail_page.at(".mp-general-info dt:contains('Дата набуття депутатських повноважень:') + dd").text.split
   start_date = Date.new(start_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(start_date_parts[1]), start_date_parts[0].to_i)
@@ -101,10 +99,31 @@ detail_page_urls.each do |url|
     end_date: end_date,
     image: detail_page.at(".simple_info img").attr(:src),
     party: party,
-    faction: faction,
     source_url: url
   }
 
   puts "Saving record: #{record[:name]}"
   ScraperWiki::save_sqlite([:id], record)
+end
+
+puts "Fetching faction index..."
+faction_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fractions"
+faction_list_page = @agent.get(faction_list_url)
+
+faction_list_page.search("table tr").each do |tr|
+  tds = tr.search(:td)
+  # Skip rows that aren't factions and set the ID if they are
+  next unless tds[0] && tds[0].at(:a) && id = tds[0].at(:a).attr(:href)[/\d{4}/]
+
+  name = tds[0].text
+  member_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fraction_list?pidid=#{id}"
+  puts "Fetching faction: #{name} (#{member_list_url})"
+  member_list_page = @agent.get(member_list_url)
+
+  member_list_page.at(:table).search(:tr).each do |row|
+    member_id = row.at(:td).at(:a).attr(:href)[/\d+/]
+    puts "Saving faction for ID: #{member_id} (#{row.at(:td).text})"
+    record = {id: member_id, faction: name}
+    ScraperWiki::save_sqlite([:id], record)
+  end
 end

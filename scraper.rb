@@ -80,9 +80,9 @@ detail_page_urls.each do |url|
   start_date_parts = detail_page.at(".mp-general-info dt:contains('Дата набуття депутатських повноважень:') + dd").text.split
   start_date = Date.new(start_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(start_date_parts[1]), start_date_parts[0].to_i)
 
-  end_date_dt = detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Дата припинення депутатських повноважень:" }
-  end_date = if end_date_dt
-    end_date_parts = end_date_dt.next.next.inner_text.split
+  end_date_element = detail_page.at(".mp-general-info dt:contains('Дата припинення депутатських повноважень:') + dd")
+  end_date = if end_date_element
+    end_date_parts = end_date_element.text.split
     Date.new(end_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(end_date_parts[1]), end_date_parts[0].to_i)
   end
 

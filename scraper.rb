@@ -65,6 +65,27 @@ else
   left_deputies_url = "http://w1.c1.rada.gov.ua/pls/site2/fetch_mps?skl_id=9&pid_id=-3"
 
   detail_page_urls = extract_urls_from_index(current_deputies_url) + extract_urls_from_index(left_deputies_url)
+
+  puts "Fetching faction index..."
+  faction_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fractions"
+  faction_list_page = @agent.get(faction_list_url)
+  id_to_faction = {}
+
+  faction_list_page.search("table tr").each do |tr|
+    tds = tr.search(:td)
+    # Skip rows that aren't factions and set the ID if they are
+    next unless tds[0] && tds[0].at(:a) && id = tds[0].at(:a).attr(:href)[/\d{4}/]
+
+    name = tds[0].text
+    member_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fraction_list?pidid=#{id}"
+    puts "Fetching faction: #{name} (#{member_list_url})"
+    member_list_page = @agent.get(member_list_url)
+
+    member_list_page.at(:table).search(:tr).each do |row|
+      member_id = row.at(:td).at(:a).attr(:href)[/\d+/]
+      id_to_faction[member_id] = name
+    end
+  end
 end
 
 puts "Fetching deputies' details..."
@@ -87,8 +108,10 @@ detail_page_urls.each do |url|
   name = detail_page.at(:h2).inner_text
   name_parts = split_name(name)
 
+  id = url[/\d+/]
+
   record = {
-    id: url[/\d+/],
+    id: id,
     name: name,
     given_name: name_parts[0],
     middle_name: name_parts[1],
@@ -99,31 +122,10 @@ detail_page_urls.each do |url|
     end_date: end_date,
     image: detail_page.at(".simple_info img").attr(:src),
     party: party,
+    faction: id_to_faction[id],
     source_url: url
   }
 
   puts "Saving record: #{record[:name]}"
   ScraperWiki::save_sqlite([:id], record)
-end
-
-puts "Fetching faction index..."
-faction_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fractions"
-faction_list_page = @agent.get(faction_list_url)
-
-faction_list_page.search("table tr").each do |tr|
-  tds = tr.search(:td)
-  # Skip rows that aren't factions and set the ID if they are
-  next unless tds[0] && tds[0].at(:a) && id = tds[0].at(:a).attr(:href)[/\d{4}/]
-
-  name = tds[0].text
-  member_list_url = "http://w1.c1.rada.gov.ua/pls/site2/p_fraction_list?pidid=#{id}"
-  puts "Fetching faction: #{name} (#{member_list_url})"
-  member_list_page = @agent.get(member_list_url)
-
-  member_list_page.at(:table).search(:tr).each do |row|
-    member_id = row.at(:td).at(:a).attr(:href)[/\d+/]
-    puts "Saving faction for ID: #{member_id} (#{row.at(:td).text})"
-    record = {id: member_id, faction: name}
-    ScraperWiki::save_sqlite([:id], record)
-  end
 end

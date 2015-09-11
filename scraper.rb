@@ -99,7 +99,7 @@ detail_page_urls.each do |url|
     term: 8,
     start_date: start_date,
     end_date: end_date,
-    image: detail_page.at(".simple_info").at(:img).attr(:src),
+    image: detail_page.at(".simple_info img").attr(:src),
     party: party,
     faction: faction,
     source_url: url

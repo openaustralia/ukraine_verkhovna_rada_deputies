@@ -95,7 +95,7 @@ detail_page_urls.each do |url|
     given_name: name_parts[0],
     middle_name: name_parts[1],
     family_name: name_parts[2],
-    area: detail_page.at(".mp-general-info").search(:dt).find { |d| d.inner_text.strip == "Обраний по:" || d.inner_text.strip == "Обрана по:" }.next.inner_text,
+    area: detail_page.at(".mp-general-info dt:contains('Обраний по:') + dd, dt:contains('Обрана по:') + dd").text,
     term: 8,
     start_date: start_date,
     end_date: end_date,

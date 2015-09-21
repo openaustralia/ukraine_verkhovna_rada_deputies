@@ -53,6 +53,23 @@ def split_name(name)
   end
 end
 
+# Fetches the history of a deputy's faction changes
+def faction_changes(id)
+  page = @agent.get("http://w1.c1.rada.gov.ua/pls/site2/p_deputat_fr_changes?d_id=#{id}")
+
+  page.at(:table).search(:tr)[1..-1].map do |row|
+    end_date_value = row.search(:td)[2].text.strip
+    end_date = end_date_value == "-" ? nil : Date.parse(end_date_value)
+
+    {
+      name: row.search(:td).first.text.strip,
+      id: row.at(:a).attr(:href)[/\d+/],
+      start_date: Date.parse(row.search(:td)[1].text.strip),
+      end_date: end_date
+    }
+  end
+end
+
 # To test just scraping one detail page run the script with the page ID as an argument
 if ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"]
   detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + (ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"])]
@@ -126,6 +143,17 @@ detail_page_urls.each do |url|
     source_url: url
   }
 
-  puts "Saving record: #{record[:name]}"
-  ScraperWiki::save_sqlite([:id], record)
+  puts "Saving current deputy record for #{record[:name]}"
+  ScraperWiki::save_sqlite([:id, :start_date], record)
+
+  faction_changes(id).each do |faction|
+    puts "Saving #{record[:name]} in faction #{faction[:name]}"
+    ScraperWiki::save_sqlite(
+      [:id, :start_date],
+      record.merge(faction: faction[:name],
+                   faction_id: faction[:id],
+                   start_date: faction[:start_date],
+                   end_date: faction[:end_date])
+    )
+  end
 end

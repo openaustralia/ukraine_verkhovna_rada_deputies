@@ -142,4 +142,14 @@ detail_page_urls.each do |url|
                    end_date: faction[:end_date])
     )
   end
+
+  if !record[:end_date] && faction_changes.last[:end_date]
+    # This person is still in parliament, albeit not in a faction
+    # any more. So we need to create a new factionless record.
+    puts "Saving factionless current deputy record for #{record[:name]}"
+    ScraperWiki::save_sqlite(
+      [:id, :start_date],
+      record.merge(start_date: faction_changes.last[:end_date] + 1)
+    )
+  end
 end

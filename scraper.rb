@@ -54,7 +54,7 @@ def split_name(name)
 end
 
 # Fetches the history of a deputy's faction changes
-def faction_changes(id)
+def deputy_faction_changes(id)
   page = @agent.get("http://w1.c1.rada.gov.ua/pls/site2/p_deputat_fr_changes?d_id=#{id}")
 
   page.at(:table).search(:tr)[1..-1].map do |row|
@@ -124,7 +124,8 @@ detail_page_urls.each do |url|
   puts "Saving current deputy record for #{record[:name]}"
   ScraperWiki::save_sqlite([:id, :start_date], record)
 
-  faction_changes(id).each do |faction|
+  faction_changes = deputy_faction_changes(id)
+  faction_changes.each do |faction|
     # Add `end_date` to earlier records if it's missing
     # https://github.com/openaustralia/ukraine_verkhovna_rada_deputies/issues/15
     ScraperWiki.sqliteexecute(

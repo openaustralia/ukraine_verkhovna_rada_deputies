@@ -125,6 +125,13 @@ detail_page_urls.each do |url|
   ScraperWiki::save_sqlite([:id, :start_date], record)
 
   faction_changes(id).each do |faction|
+    # Add `end_date` to earlier records if it's missing
+    # https://github.com/openaustralia/ukraine_verkhovna_rada_deputies/issues/15
+    ScraperWiki.sqliteexecute(
+      "UPDATE data SET end_date = ? WHERE id = ? AND start_date < ? AND end_date IS NULL",
+      [(faction[:start_date] - 1).to_s, id, faction[:start_date].to_s]
+    )
+
     puts "Saving #{record[:name]} in faction #{faction[:name]}"
     ScraperWiki::save_sqlite(
       [:id, :start_date],

@@ -42,12 +42,12 @@ end
 
 def split_name(name)
   parts = name.split
+  # Ukrainian full names are written out: last name, first name, middle name
   if parts.count == 3
-    # "First names always goes second" and, "Last name is always first".
-    parts.reverse
+    [parts[1], parts[2], parts[0]]
   elsif parts.count == 2
     # Add a blank middle name if there's none
-    parts.reverse.insert(1, nil)
+    [parts[1], nil, parts[0]]
   else
     raise "Unexpected number of names: #{name}"
   end

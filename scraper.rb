@@ -42,7 +42,7 @@ end
 
 def split_name(name)
   parts = name.split
-  # Ukrainian full names are written out: last name, first name, middle name
+  # Ukrainian full names are written out: last name, first name, patronymic name
   if parts.count == 3
     [parts[1], parts[2], parts[0]]
   elsif parts.count == 2
@@ -110,7 +110,7 @@ detail_page_urls.each do |url|
     id: id,
     name: name,
     given_name: name_parts[0],
-    middle_name: name_parts[1],
+    patronymic_name: name_parts[1],
     family_name: name_parts[2],
     area: detail_page.at(".mp-general-info dt:contains('Обраний по:') + dd, dt:contains('Обрана по:') + dd").text,
     term: 8,

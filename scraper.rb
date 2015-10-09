@@ -40,19 +40,6 @@ def extract_urls_from_index(url)
   page.search(".title").map { |e| e.at(:a).attr(:href) }
 end
 
-def split_name(name)
-  parts = name.split
-  # Ukrainian full names are written out: last name, first name, patronymic name
-  if parts.count == 3
-    [parts[1], parts[2], parts[0]]
-  elsif parts.count == 2
-    # Add a blank middle name if there's none
-    [parts[1], nil, parts[0]]
-  else
-    raise "Unexpected number of names: #{name}"
-  end
-end
-
 # Fetches the history of a deputy's faction changes
 def deputy_faction_changes(id)
   page = @agent.get("http://w1.c1.rada.gov.ua/pls/site2/p_deputat_fr_changes?d_id=#{id}")
@@ -102,16 +89,17 @@ detail_page_urls.each do |url|
   end
 
   name = detail_page.at(:h2).inner_text
-  name_parts = split_name(name)
+  # Ukrainian full names are written out: last name, first name, patronymic name
+  name_parts = name.split
 
   id = url[/\d+/]
 
   record = {
     id: id,
     name: name,
-    given_name: name_parts[0],
-    patronymic_name: name_parts[1],
-    family_name: name_parts[2],
+    given_name: name_parts[1],
+    patronymic_name: name_parts[2],
+    family_name: name_parts[0],
     area: detail_page.at(".mp-general-info dt:contains('Обраний по:') + dd, dt:contains('Обрана по:') + dd").text,
     term: 8,
     start_date: start_date,

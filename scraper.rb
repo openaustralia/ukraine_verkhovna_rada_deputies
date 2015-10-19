@@ -57,6 +57,28 @@ def deputy_faction_changes(id)
   end
 end
 
+# Checks for any gaps between faction changes so these can be filled in with
+# an "independent" record
+def check_independent_periods(faction_changes)
+  periods = []
+
+  faction_changes.each_with_index do |r,i|
+    next if i == 0
+    previous_end_date = faction_changes[i - 1][:end_date]
+
+    if (r[:start_date] - previous_end_date).to_i > 1
+      periods << {
+        name: "Позафракційні",
+        id: "",
+        start_date: previous_end_date,
+        end_date: r[:start_date]
+      }
+    end
+  end
+
+  periods
+end
+
 # To test just scraping one detail page run the script with the page ID as an argument
 if ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"]
   detail_page_urls = ["http://itd.rada.gov.ua/mps/info/page/" + (ARGV[0] || ENV["MORPH_ID_TO_SCRAPE"])]
@@ -113,7 +135,8 @@ detail_page_urls.each do |url|
   ScraperWiki::save_sqlite([:id, :start_date], record)
 
   faction_changes = deputy_faction_changes(id)
-  faction_changes.each do |faction|
+  independent_periods = check_independent_periods(faction_changes)
+  (faction_changes + independent_periods).each do |faction|
     # Add `end_date` to earlier records if it's missing
     # https://github.com/openaustralia/ukraine_verkhovna_rada_deputies/issues/15
     ScraperWiki.sqliteexecute(

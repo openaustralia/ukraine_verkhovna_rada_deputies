@@ -68,7 +68,7 @@ def check_independent_periods(faction_changes)
 
     if (r[:start_date] - previous_end_date).to_i > 1
       periods << {
-        name: "Позафракційні",
+        name: "",
         id: "",
         start_date: previous_end_date,
         end_date: r[:start_date]

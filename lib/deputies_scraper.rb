@@ -20,6 +20,11 @@ class DeputiesScraper
       party_element = detail_page.at(".mp-general-info dt:contains('Партія:') + dd")
       party = party_element.text if party_element
 
+      area = detail_page.at(".mp-general-info dt:contains('Обраний по:') + dd, dt:contains('Обрана по:') + dd").text
+      if area[/^Виборчому округу/]
+        area = detail_page.at(".mp-general-info dt:contains('Регіон:') + dd").text
+      end
+
       start_date_parts = detail_page.at(".mp-general-info dt:contains('Дата набуття депутатських повноважень:') + dd").text.split
       start_date = Date.new(start_date_parts[2][/\d+/].to_i, ukrainian_month_to_i(start_date_parts[1]), start_date_parts[0].to_i)
 
@@ -41,7 +46,7 @@ class DeputiesScraper
         given_name: name_parts[1],
         patronymic_name: name_parts[2],
         family_name: name_parts[0],
-        area: detail_page.at(".mp-general-info dt:contains('Обраний по:') + dd, dt:contains('Обрана по:') + dd").text,
+        area: area,
         term: 8,
         start_date: start_date,
         end_date: end_date,

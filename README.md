@@ -2,7 +2,11 @@
 
 This is [a scraper that runs on morph.io](https://morph.io/openaustralia/ukraine_verkhovna_rada_deputies) to collect a list of all members of the Ukrainian parliament. It currently collects all data in Ukrainian.
 
-It's used by [EveryPolitician](http://everypolitician.org/) and [Вони голосують для тебе](https://rada4you.org/).
+It's designed to feed data into [EveryPolitician](http://everypolitician.org/) so that it can make [Popolo](http://www.popoloproject.com/) compatible data. It was built to be used by [Вони голосують для тебе](https://rada4you.org/).
+
+## Refreshing data in EveryPolitician
+
+You can [trigger a rebuild](https://github.com/everypolitician/everypolitician-data/issues/1230#issuecomment-156038088) of the EveryPolitician data by sending an empty POST request to https://everypolitician-rebuilder.herokuapp.com/Ukraine/Verkhovna_Rada — this will rebuild it an open a PR (if anything has changed). 
 
 ## Helpful URLs
 

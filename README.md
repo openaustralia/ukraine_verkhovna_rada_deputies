@@ -6,7 +6,11 @@ It's designed to feed data into [EveryPolitician](http://everypolitician.org/) s
 
 ## Refreshing data in EveryPolitician
 
-You can [trigger a rebuild](https://github.com/everypolitician/everypolitician-data/issues/1230#issuecomment-156038088) of the EveryPolitician data by sending an empty POST request to https://everypolitician-rebuilder.herokuapp.com/Ukraine/Verkhovna_Rada — this will rebuild it an open a PR (if anything has changed). 
+You can [trigger a rebuild](https://github.com/everypolitician/everypolitician-data/issues/1230#issuecomment-156038088) of the EveryPolitician data by sending an empty POST request to https://everypolitician-rebuilder.herokuapp.com/Ukraine/Verkhovna_Rada — this will rebuild it an open a PR (if anything has changed):
+
+    curl -d "" https://everypolitician-rebuilder.herokuapp.com/Ukraine/Verkhovna_Rada
+
+After a few minutes a pull request will automatically be opened on the [EveryPolitician repository](https://github.com/everypolitician/everypolitician-data/pulls). Once it's been checked and merged by the maintainers the data will be up-to-date.
 
 ## Helpful URLs
 

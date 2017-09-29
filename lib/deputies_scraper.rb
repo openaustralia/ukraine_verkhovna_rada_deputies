@@ -90,22 +90,25 @@ class DeputiesScraper
       end
       if !record[:end_date].nil? && faction_changes.any?
         #This person is not in parliament
-        puts "Saving remove current deputy record for #{record[:name]}"
-        remove = ScraperWiki.sqliteexecute(
+          puts "Saving remove current deputy record for #{record[:name]}"
+        if record[:end_date] != faction_changes.last[:end_date]
+          remove = ScraperWiki.sqliteexecute(
            "UPDATE data SET end_date = ? WHERE id = ? AND end_date IS NULL",
            [record[:end_date].to_s, id]
-        )
+          )
          if remove.empty?
             ScraperWiki::save_sqlite(
                 [:id, :start_date],
                 record.merge(start_date: faction_changes.last[:end_date] + 1)
             )
          end
-      elsif   !record[:end_date].nil? && faction_changes.empty?
-        ScraperWiki::save_sqlite(
+        end
+          if  !record[:end_date].nil? && faction_changes.empty?
+            ScraperWiki::save_sqlite(
             [:id, :start_date],
             record
-        )
+            )
+         end
       end
     end
   end
